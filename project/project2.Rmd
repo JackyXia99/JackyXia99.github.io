@@ -1,0 +1,216 @@
+---
+title: "Project2"
+author: "Jacky"
+date: "5/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+
+class_diag <- function(probs,truth){ 
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV 
+  if(is.character(truth)==TRUE) truth<-as.factor(truth) 
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1 
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),factor(truth, levels=c(0,1))) 
+  acc=sum(diag(tab))/sum(tab) 
+  sens=tab[2,2]/colSums(tab)[2] 
+  spec=tab[1,1]/colSums(tab)[1] 
+  ppv=tab[2,2]/rowSums(tab)[2] 
+  
+#CALCULATE EXACT AUC 
+  ord<-order(probs, decreasing=TRUE) 
+  probs <- probs[ord]; truth <- truth[ord] 
+  TPR=cumsum(truth)/max(1,sum(truth))  
+  FPR=cumsum(!truth)/max(1,sum(!truth)) 
+  dup <-c(probs[-1]>=probs[-length(probs)], FALSE) 
+  TPR <-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1) 
+  n <- length(TPR) 
+  auc <- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n])) 
+  data.frame(acc,sens,spec,ppv,auc) 
+}
+
+set.seed(348)
+```
+
+## Guidelines and Rubric
+
+**0. (5 pts)** Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?
+
+```{R}
+pkmn<-read.csv("pokemon.csv",header=TRUE)
+tidypkmn<-pkmn%>%select(name,type1,type2,hp,attack,defense,sp_attack,sp_defense,speed,base_total,generation,weight_kg,height_m,)%>%mutate(BMI=weight_kg/(height_m)^2)%>%mutate(Healthy=ifelse(BMI<=24.9&BMI>=18.5,1,0))%>%mutate(region=recode(generation,"1"="Kanto","2"="Johto","3"="Hoenn","4"="Sinnoh","5"="Unova","6"="Kalos","7"="Alola"))
+```
+
+*For project 2, I have chosen to continue with the theme of my project 1 and go with pokemon. With my dataset, I will be focusing on the BMIs of pokemon from generations 1-7 and how they might relate to the regions they can be found in. Hopefully, with my focus on BMI, I should differentiate myself enough from the examples done in class/lab where they centered on if a pokemon was a legendary or not. This dataset is slightly different from the one in project 1. Besides the usual names, types, stats, weight, height, and BMI, I have created a new variable: Healthy. Healthy fills in the spot as my binary variable as it gives a 1 if a pokemon is in the healthy BMI range defined for humans (18.5-24.9) and 0 if a pokemon is either below or above the healthy range. Additionally, this dataset contains pokemon from generations 1-7 for a total of 801 pokemon (not including megas or alolan forms). Because of this inclusion, I have also created a new categorical variable called region that will give the name of the region the pokemon was first introduced in. Finnaly, the original dataset comes from Kaggle by the user Rounak Banik (https://www.kaggle.com/rounakbanik/pokemon).*
+
+**1. (15 pts)** Perform a MANOVA testing whether any of your numeric variables (or a subset of them, if including them all is unreasonable or doesn't make sense) show a mean difference across levels of one of your categorical variables (3). If they do, perform univariate ANOVAs to find response(s) showing a mean difference across groups (3), and perform post-hoc t tests to find which groups differ (3). Discuss the number of tests you have performed, calculate the probability of at least one type I error (if unadjusted), and adjust the significance level accordingly (bonferroni correction) before discussing significant differences (3). Briefly discuss some of the MANOVA assumptions and whether or not they are likely to have been met here (no need for anything too in-depth) (2).
+
+```{R}
+pman1<-manova(cbind(weight_kg,height_m)~region,data=tidypkmn)
+summary(pman1)
+summary.aov(pman1)
+pairwise.t.test(tidypkmn$weight_kg,tidypkmn$region,p.adj="none")
+1+2+21 #1 MANOVA, 2 ANOVAs, 21 t tests for a total of 24 hypothesis tests.
+1-(0.95)^24 #0.708 probability of Type I error
+0.05/24 #0.00208 adjusted Bonferroni adjusted significant level
+```
+*MANOVA was performed to test if either weight or height showed a mean difference across regions (the other numeric variables weren't included since I wanted to focus on the relation between weight/height and region). MANOVA results revealed at least one of the regions differs by weight/height (Pillai=0.033, F=2.254, p-value=0.008). The following 2 ANOVAs revealed that only weight had region differences (F=2.93, p-value=0.008). After bonferroni adjustment, out of the 21 post-host t tests, only the KantoxAlola significantly differed. In the end, 24 hypothesis tests were performed (1 MANOVA, 2 ANOVAs, 21 t tests) with a 70.8% chance that a Type I error occurred. In terms of the MANOVA assumptions, many were broken. Instead of random samples, the dataset contains essentially every pokemon up to generation 7 so the whole population was used for statistical analysis. There are some unique pokemon out there (example being one the size of a football weighing an outrageously large amount) so there are bound to be outliers. And finally, at least for weight (ranging from a leaf to Godzilla), there was such a wide range that the assumptions of normality and variance were most likely not met.*
+
+**2. (10 pts)** Perform some kind of randomization test on your data (that makes sense). The statistic can be anything you want (mean difference, correlation, F-statistic/ANOVA, chi-squared), etc. State null and alternative hypotheses, perform the test, and interpret the results (7). Create a plot visualizing the null distribution and the test statistic (3).
+
+```{R}
+summary(aov(BMI~region,data=tidypkmn))
+
+obs_F<-1.51
+Fs<-replicate(500,{
+  newa<-tidypkmn%>%mutate(BMI=sample(BMI))
+  SSW<-newa%>%group_by(region)%>%summarize(SSW=sum((BMI-mean(BMI))^2))%>%summarize(sum(SSW))%>%pull
+  SSB<-newa%>%mutate(mean=mean(BMI))%>%group_by(region)%>%mutate(groupmean=mean(BMI))%>%summarize(SSB=sum((mean-groupmean)^2))%>%
+  summarize(sum(SSB))%>%pull
+  (SSB/6)/(SSW/794)
+})
+
+mean(Fs>obs_F) #p-value
+hist(Fs,prob=T);abline(v=obs_F,col="red",add=T)
+
+```
+*The null hypothesis would be that there is no significant difference in BMI across the regions while the alternative hypothesis would be that there is a significant difference in BMI in at least one of the regions. After randomization breaks any potential association between region and BMI, the F-statistic was calculated and averaged. Since p-value=0.112, the null hypothesis cannot be rejected and the conclusion that the regions do not differ in BMI stands.*
+
+**3. (40 pts)** Build a linear regression model predicting one of your response variables from at least 2 other variables, including their interaction. Mean-center any numeric variables involved in the interaction.
+
+    - Interpret the coefficient estimates (do not discuss significance) (10)
+    - Plot the regression using `ggplot()` using geom_smooth(method="lm"). If your interaction is numeric by numeric, refer to code in the slides to make the plot or check out the `interactions` package, which makes this easier. If you have 3 or more predictors, just chose two of them to plot for convenience. (10)
+    - What proportion of the variation in the outcome does your model explain? (4)
+    - Check assumptions of linearity, normality, and homoskedasticity either graphically or using a hypothesis test (5)
+    - Regardless, recompute regression results with robust standard errors via `coeftest(..., vcov=vcovHC(...))`. Discuss significance of results, including any changes from before/after robust SEs if applicable. (10)
+    
+```{R}
+pkmn1<-tidypkmn%>%mutate(basetotalc=base_total-mean(base_total))
+regpkmn<-lm(BMI~basetotalc*region,data=pkmn1)
+summary(regpkmn)
+pkmn1%>%select(BMI,basetotalc,region)%>%ggplot(aes(basetotalc,BMI,color=region))+geom_point()+geom_smooth(method="lm") + ylim(c(0,100))
+library(sandwich)
+library(lmtest)
+ggplot(data=pkmn1,aes(basetotalc,BMI))+geom_point()+ylim(c(0,100)) #Linearity test
+pkmnresids<-regpkmn$residuals
+shapiro.test(pkmnresids) #Normality test
+bptest(regpkmn) #Homoskedasticity test
+coeftest(regpkmn,vcov=vcovHC(regpkmn))
+```
+*The mean BMI for the Alola region with average base stat total was 1380.666. For every 1-unit increase in base stat total, predicted BMI goes down 4.561 for the pokemon in the Alola region. Pokemon in the Hoenn, Johto, Kalos, Kanto, Sinnoh, and Unova regions with average base stat total have a predicted BMI that is 1330.807, 1347.183, 1345.834, 1348.019, 1333.488, and 1338.065 lower than pokemon in the Alola region with average BMI, respectively. Slope of base stat total on BMI for the Hoenn, Johto, Kalos, Kanto, Sinnoh, and Unova regions was 4.541, 4.549, 4.519, 4.548, 4.490, and 4.553 greater than for the Alola region. This model explains 0% of the variation in the outcome with an adjusted R-squared of -0.003. For the assumption of linearity, the scatterplot between the centered base total stat and BMI reveals that there is no linearity of the data. For the assumption of normality, the Shapiro-Wilk test resulted in a p-value < 0.001 which means that we reject the null hypothesis that the data is normal. For the assumption of homoskedasticity, the Breush-Pagan test resulted in a p-value of 0.6 which means that we fail to reject the null hypothesis that the data is homoskedasctic. The combination of these failed assumptions with some outliers in the data set would probably explain why this model was so poor. Recomputing the regression results with robust standard errors resulted in the change from all the coefficients for all the regions being significant to all of them being not significant. Additionally, after using robust standard errors, the p-values for all variables and the t-statistics for the regions saw a general increase while the t-statistic for the interactions saw a slight, general decrease.*
+
+**4. (5 pts)** Rerun same regression model (with the interaction), but this time compute bootstrapped standard errors (either by resampling observations or residuals). Discuss any changes you observe in SEs and p-values using these SEs compared to the original SEs and the robust SEs)
+
+```{R}
+pkmnfitted<-regpkmn$fitted.values
+pkmnresid_resamp<-replicate(500,{
+  new_pkmnresids<-sample(pkmnresids,replace=TRUE)
+  pkmn1$new_y<-pkmnfitted+new_pkmnresids
+  pkmnfit<-lm(new_y~basetotalc*region,data=pkmn1)
+  coef(pkmnfit)
+})
+pkmnresid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+pkmnresid_resamp%>%t%>%as.data.frame%>%gather%>%group_by(key)%>%summarize(lower=quantile(value,.025),upper=quantile(value,.975))
+```
+*After rerunning the same regression model with bootstrapped standard errors by resampling residuals, the SEs for the interactions saw a slight, general decrease, the SEs for the regions saw a massive increase, and the SE for the centered base stat total saw a slight increase. Conducting 95% CI for each variable reaffirms the results found using robust SEs that all the coefficients for each variable are not significant since each CI contains zero.*
+
+**5. (30 pts)** Fit a logistic regression model predicting a binary variable (if you don't have one, make/get one) from at least two explanatory variables (interaction not necessary). 
+
+    - Interpret coefficient estimates in context (10)
+    - Report a confusion matrix for your logistic regression (5)
+    - Compute and discuss the Accuracy, Sensitivity (TPR), Specificity (TNR), Precision (PPV), and AUC of your model (5)
+    - Using ggplot, make a density plot of the log-odds (logit) colored/grouped by your binary outcome variable (5)
+    - Generate an ROC curve (plot) and calculate AUC (either manually or with a package); interpret (5)
+
+```{R}
+pkmn3<-pkmn1%>%select(Healthy,basetotalc,region)
+pkmnfit2<-glm(Healthy~basetotalc+region,data=pkmn3,family=binomial)
+exp(coef(pkmnfit2))
+pkmnprob1<-predict(pkmnfit2,type="response")
+table(predict=as.numeric(pkmnprob1>.5),truth=pkmn1$Healthy)%>%addmargins
+class_diag(pkmnprob1,pkmn1$Healthy)
+pkmn1$logit<-predict(pkmnfit2)
+pkmn1$Healthy<-factor(pkmn1$Healthy,levels=c(0,1))
+ggplot(pkmn1,aes(logit,fill=Healthy))+geom_density(alpha=.3)
+library(plotROC)
+pkmn3$Healthy<-as.numeric(as.character(pkmn3$Healthy))
+pkmn3$prob<-predict(pkmnfit2,type="response")
+pkmnROC<-ggplot(pkmn3)+geom_roc(aes(d=Healthy,m=prob),n.cuts=0)
+pkmnROC
+calc_auc(pkmnROC)
+```
+*The odds of a pokemon being healthy in Hoenn, Johto, Kalos, Kanto, Sinnoh, and Unova are 0.999, 1.416, 1.408, 1.832, 1.638, 1.055, and 0.903 times what they are in Alola. As reported above, the confusion matrix does not have any instances where it would predict that a pokemon has a healthy BMI. Because of this, the resulting sensitivity would be 0/126=0 and the precision would be 0/na=na since there were no positive predictions. As for specificity, since there were no positive predictions, the only predictions made were negative which meant a sensitivity of 675/675=1. Accuracy only predicted the negatives correctly and missed all the positives so it has a value of (675+0)/801=0.843. As seen from the confusion matrix, the model was so poor that it was unable to make any positive predictions. With an AUC value of 0.571, this prediction model would be classified as bad.*
+
+**6. (25 pts)** Perform a logistic regression predicting the same binary response variable from *ALL* of the rest of your variables (the more, the better!) 
+
+    - Fit model, compute in-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, AUC), and interpret (5)
+    - Perform 10-fold (or repeated random sub-sampling) CV with the same model and report average out-of-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, and AUC); interpret AUC and compare with the in-sample metrics (10)
+    - Perform LASSO on the same model/variables. Choose lambda to give the simplest model whose accuracy is near that of the best (i.e., `lambda.1se`). Discuss which variables are retained. (5)
+    - Perform 10-fold CV using only the variables lasso selected: compare model's out-of-sample AUC to that of your logistic regressions above (5)
+
+```{R}
+pkmn2<-pkmn1%>%select(-name,-generation,-logit)
+pkmnfit3<-glm(Healthy~.,data=pkmn2,family="binomial")
+pkmnprob<-predict(pkmnfit3,type="response")
+class_diag(pkmnprob,pkmn2$Healthy)
+
+k=10
+pkmndata<-pkmn2[sample(nrow(pkmn2)),]
+pkmnfolds<-cut(seq(1:nrow(pkmn2)),breaks=k,labels=F)
+diags<-NULL
+for(i in 1:k){
+  pkmntrain<-pkmndata[pkmnfolds!=i,]
+  pkmntest<-pkmndata[pkmnfolds==i,]
+  
+  pkmntruth<-pkmntest$Healthy
+  
+  pkmnfit4<-glm(Healthy~.,data=pkmntrain,family="binomial")
+  pkmnprobs<-predict(pkmnfit4,newdata=pkmntest,type="response")
+  
+  diags<-rbind(diags,class_diag(pkmnprobs,pkmntruth))
+}
+
+summarize_all(diags,mean)
+
+library(glmnet)
+pkmnx<-model.matrix(Healthy~.,data=pkmn2)[,-13]
+pkmny<-as.matrix(pkmn2$Healthy)
+pkmncv<-cv.glmnet(pkmnx,pkmny,family="binomial")
+pkmnlasso<-glmnet(pkmnx,pkmny,family="binomial",lambda=pkmncv$lambda.1se)
+coef(pkmnlasso)
+
+pkmn2$Fairy<-pkmn2$type1=="fairy"
+pkmndata2<-pkmn2[sample(nrow(pkmn2)),]
+pkmnfolds2<-cut(seq(1:nrow(pkmn2)),breaks=k,labels=F)
+diags2<-NULL
+for(i in 1:k){
+  pkmntrain2<-pkmndata2[pkmnfolds2!=i,]
+  pkmntest2<-pkmndata2[pkmnfolds2==i,]
+  
+  pkmntruth2<-pkmntest2$Healthy
+  
+  pkmnfit6<-glm(Healthy~Fairy,data=pkmntrain2,family="binomial")
+  pkmnprobs2<-predict(pkmnfit6,newdata=pkmntest2,type="response")
+  
+  diags2<-rbind(diags2,class_diag(pkmnprobs2,pkmntruth2))
+}
+
+summarize_all(diags2,mean)
+```
+*Computation of the in-sample diagnostics reveal that accuracy, specificity, and AUC are relatively good; however, both sensitivity and precision are not looking too good. These low values suggest that this prediction model is not very good at predicting if a healthy pokemon is healthy. With an AUC value of 0.821, this prediction model is classified as good. After 10-fold CV, the accuracy, sensitivity, specificity, precision, and AUC were 0.816, 0.074, 0.954, 0.27, and 0.714 respectively. Relative to the in-sample metrics, all classification diagnostics except AUC increased slightly. With an AUC value of 0.688, the prediction model got worse and is now classified as poor. LASSO was conducted and revealed that the type1 fairy variable should be retained (although just barely). With an AUC value of 0.526, this prediction model is the worst compared to the other two logistic regressions (AUC=0.821 and 0.688) and is now classified as bad.*

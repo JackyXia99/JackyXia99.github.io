@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Jacky Xia" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project2</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project2</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="guidelines-and-rubric" class="section level2">
+<h2>Guidelines and Rubric</h2>
+<p><strong>0. (5 pts)</strong> Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?</p>
+<pre class="r"><code>pkmn&lt;-read.csv(&quot;pokemon.csv&quot;,header=TRUE)
+tidypkmn&lt;-pkmn%&gt;%select(name,type1,type2,hp,attack,defense,sp_attack,sp_defense,speed,base_total,generation,weight_kg,height_m,)%&gt;%mutate(BMI=weight_kg/(height_m)^2)%&gt;%mutate(Healthy=ifelse(BMI&lt;=24.9&amp;BMI&gt;=18.5,1,0))%&gt;%mutate(region=recode(generation,&quot;1&quot;=&quot;Kanto&quot;,&quot;2&quot;=&quot;Johto&quot;,&quot;3&quot;=&quot;Hoenn&quot;,&quot;4&quot;=&quot;Sinnoh&quot;,&quot;5&quot;=&quot;Unova&quot;,&quot;6&quot;=&quot;Kalos&quot;,&quot;7&quot;=&quot;Alola&quot;))</code></pre>
+<p><em>For project 2, I have chosen to continue with the theme of my project 1 and go with pokemon. With my dataset, I will be focusing on the BMIs of pokemon from generations 1-7 and how they might relate to the regions they can be found in. Hopefully, with my focus on BMI, I should differentiate myself enough from the examples done in class/lab where they centered on if a pokemon was a legendary or not. This dataset is slightly different from the one in project 1. Besides the usual names, types, stats, weight, height, and BMI, I have created a new variable: Healthy. Healthy fills in the spot as my binary variable as it gives a 1 if a pokemon is in the healthy BMI range defined for humans (18.5-24.9) and 0 if a pokemon is either below or above the healthy range. Additionally, this dataset contains pokemon from generations 1-7 for a total of 801 pokemon (not including megas or alolan forms). Because of this inclusion, I have also created a new categorical variable called region that will give the name of the region the pokemon was first introduced in. Finnaly, the original dataset comes from Kaggle by the user Rounak Banik (<a href="https://www.kaggle.com/rounakbanik/pokemon" class="uri">https://www.kaggle.com/rounakbanik/pokemon</a>).</em></p>
+<p><strong>1. (15 pts)</strong> Perform a MANOVA testing whether any of your numeric variables (or a subset of them, if including them all is unreasonable or doesn’t make sense) show a mean difference across levels of one of your categorical variables (3). If they do, perform univariate ANOVAs to find response(s) showing a mean difference across groups (3), and perform post-hoc t tests to find which groups differ (3). Discuss the number of tests you have performed, calculate the probability of at least one type I error (if unadjusted), and adjust the significance level accordingly (bonferroni correction) before discussing significant differences (3). Briefly discuss some of the MANOVA assumptions and whether or not they are likely to have been met here (no need for anything too in-depth) (2).</p>
+<pre class="r"><code>pman1&lt;-manova(cbind(weight_kg,height_m)~region,data=tidypkmn)
+summary(pman1)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## region 6 0.033492 2.2538 12 1588 0.007983 **
+## Residuals 794
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>summary.aov(pman1)</code></pre>
+<pre><code>## Response weight_kg :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## region 6 204089 34015 2.9304 0.007812 **
+## Residuals 794 9216246 11607
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response height_m :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## region 6 5.03 0.83896 0.7314 0.6244
+## Residuals 794 910.80 1.14711</code></pre>
+<pre class="r"><code>pairwise.t.test(tidypkmn$weight_kg,tidypkmn$region,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  tidypkmn$weight_kg and tidypkmn$region 
+## 
+##        Alola   Hoenn   Johto   Kalos   Kanto   Sinnoh 
+## Hoenn  0.04653 -       -       -       -       -      
+## Johto  0.00290 0.20646 -       -       -       -      
+## Kalos  0.00910 0.32598 0.87975 -       -       -      
+## Kanto  0.00059 0.09822 0.82047 0.71321 -       -      
+## Sinnoh 0.19837 0.48208 0.06413 0.12441 0.02335 -      
+## Unova  0.00247 0.24689 0.81122 0.95961 0.60009 0.07062
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>1+2+21 #1 MANOVA, 2 ANOVAs, 21 t tests for a total of 24 hypothesis tests.</code></pre>
+<pre><code>## [1] 24</code></pre>
+<pre class="r"><code>1-(0.95)^24 #0.708 probability of Type I error</code></pre>
+<pre><code>## [1] 0.708011</code></pre>
+<pre class="r"><code>0.05/24 #0.00208 adjusted Bonferroni adjusted significant level</code></pre>
+<pre><code>## [1] 0.002083333</code></pre>
+<p><em>MANOVA was performed to test if either weight or height showed a mean difference across regions (the other numeric variables weren’t included since I wanted to focus on the relation between weight/height and region). MANOVA results revealed at least one of the regions differs by weight/height (Pillai=0.033, F=2.254, p-value=0.008). The following 2 ANOVAs revealed that only weight had region differences (F=2.93, p-value=0.008). After bonferroni adjustment, out of the 21 post-host t tests, only the KantoxAlola significantly differed. In the end, 24 hypothesis tests were performed (1 MANOVA, 2 ANOVAs, 21 t tests) with a 70.8% chance that a Type I error occurred. In terms of the MANOVA assumptions, many were broken. Instead of random samples, the dataset contains essentially every pokemon up to generation 7 so the whole population was used for statistical analysis. There are some unique pokemon out there (example being one the size of a football weighing an outrageously large amount) so there are bound to be outliers. And finally, at least for weight (ranging from a leaf to Godzilla), there was such a wide range that the assumptions of normality and variance were most likely not met.</em></p>
+<p><strong>2. (10 pts)</strong> Perform some kind of randomization test on your data (that makes sense). The statistic can be anything you want (mean difference, correlation, F-statistic/ANOVA, chi-squared), etc. State null and alternative hypotheses, perform the test, and interpret the results (7). Create a plot visualizing the null distribution and the test statistic (3).</p>
+<pre class="r"><code>summary(aov(BMI~region,data=tidypkmn))</code></pre>
+<pre><code>##              Df    Sum Sq  Mean Sq F value Pr(&gt;F)
+## region        6 1.126e+08 18761144    1.51  0.172
+## Residuals   794 9.866e+09 12426281</code></pre>
+<pre class="r"><code>obs_F&lt;-1.51
+Fs&lt;-replicate(500,{
+  newa&lt;-tidypkmn%&gt;%mutate(BMI=sample(BMI))
+  SSW&lt;-newa%&gt;%group_by(region)%&gt;%summarize(SSW=sum((BMI-mean(BMI))^2))%&gt;%summarize(sum(SSW))%&gt;%pull
+  SSB&lt;-newa%&gt;%mutate(mean=mean(BMI))%&gt;%group_by(region)%&gt;%mutate(groupmean=mean(BMI))%&gt;%summarize(SSB=sum((mean-groupmean)^2))%&gt;%
+  summarize(sum(SSB))%&gt;%pull
+  (SSB/6)/(SSW/794)
+})
+
+mean(Fs&gt;obs_F) #p-value</code></pre>
+<pre><code>## [1] 0.112</code></pre>
+<pre class="r"><code>hist(Fs,prob=T);abline(v=obs_F,col=&quot;red&quot;,add=T)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" />
+<em>The null hypothesis would be that there is no significant difference in BMI across the regions while the alternative hypothesis would be that there is a significant difference in BMI in at least one of the regions. After randomization breaks any potential association between region and BMI, the F-statistic was calculated and averaged. Since p-value=0.112, the null hypothesis cannot be rejected and the conclusion that the regions do not differ in BMI stands.</em></p>
+<p><strong>3. (40 pts)</strong> Build a linear regression model predicting one of your response variables from at least 2 other variables, including their interaction. Mean-center any numeric variables involved in the interaction.</p>
+<pre><code>- Interpret the coefficient estimates (do not discuss significance) (10)
+- Plot the regression using `ggplot()` using geom_smooth(method=&quot;lm&quot;). If your interaction is numeric by numeric, refer to code in the slides to make the plot or check out the `interactions` package, which makes this easier. If you have 3 or more predictors, just chose two of them to plot for convenience. (10)
+- What proportion of the variation in the outcome does your model explain? (4)
+- Check assumptions of linearity, normality, and homoskedasticity either graphically or using a hypothesis test (5)
+- Regardless, recompute regression results with robust standard errors via `coeftest(..., vcov=vcovHC(...))`. Discuss significance of results, including any changes from before/after robust SEs if applicable. (10)</code></pre>
+<pre class="r"><code>pkmn1&lt;-tidypkmn%&gt;%mutate(basetotalc=base_total-mean(base_total))
+regpkmn&lt;-lm(BMI~basetotalc*region,data=pkmn1)
+summary(regpkmn)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = BMI ~ basetotalc * region, data = pkmn1)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -2420 -25 -12 3 98480
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1380.666 401.206 3.441 0.000609 ***
+## basetotalc -4.561 3.431 -1.329 0.184122
+## regionHoenn -1330.807 503.957 -2.641 0.008437 **
+## regionJohto -1347.183 536.707 -2.510 0.012270 *
+## regionKalos -1345.834 579.403 -2.323 0.020444 *
+## regionKanto -1348.019 494.751 -2.725 0.006580 **
+## regionSinnoh -1333.488 530.992 -2.511 0.012228 *
+## regionUnova -1338.065 491.084 -2.725 0.006579 **
+## basetotalc:regionHoenn 4.541 4.095 1.109 0.267875
+## basetotalc:regionJohto 4.549 4.520 1.006 0.314542
+## basetotalc:regionKalos 4.519 4.859 0.930 0.352683
+## basetotalc:regionKanto 4.548 4.288 1.061 0.289181
+## basetotalc:regionSinnoh 4.490 4.430 1.014 0.311125
+## basetotalc:regionUnova 4.553 4.388 1.038 0.299791
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 3537 on 787 degrees of freedom
+## Multiple R-squared: 0.0135, Adjusted R-squared:
+-0.002799
+## F-statistic: 0.8282 on 13 and 787 DF, p-value: 0.6302</code></pre>
+<pre class="r"><code>pkmn1%&gt;%select(BMI,basetotalc,region)%&gt;%ggplot(aes(basetotalc,BMI,color=region))+geom_point()+geom_smooth(method=&quot;lm&quot;) + ylim(c(0,100))</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(sandwich)
+library(lmtest)
+ggplot(data=pkmn1,aes(basetotalc,BMI))+geom_point()+ylim(c(0,100)) #Linearity test</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pkmnresids&lt;-regpkmn$residuals
+shapiro.test(pkmnresids) #Normality test</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  pkmnresids
+## W = 0.037509, p-value &lt; 2.2e-16</code></pre>
+<pre class="r"><code>bptest(regpkmn) #Homoskedasticity test</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  regpkmn
+## BP = 11.143, df = 13, p-value = 0.5988</code></pre>
+<pre class="r"><code>coeftest(regpkmn,vcov=vcovHC(regpkmn))</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1380.6663 1350.7524 1.0221 0.3070
+## basetotalc -4.5606 4.8184 -0.9465 0.3442
+## regionHoenn -1330.8072 1350.7636 -0.9852 0.3248
+## regionJohto -1347.1829 1350.7553 -0.9974 0.3189
+## regionKalos -1345.8344 1350.7557 -0.9964 0.3194
+## regionKanto -1348.0190 1350.7537 -0.9980 0.3186
+## regionSinnoh -1333.4879 1350.7610 -0.9872 0.3238
+## regionUnova -1338.0650 1350.7567 -0.9906 0.3222
+## basetotalc:regionHoenn 4.5406 4.8185 0.9423 0.3463
+## basetotalc:regionJohto 4.5492 4.8184 0.9441 0.3454
+## basetotalc:regionKalos 4.5185 4.8184 0.9378 0.3487
+## basetotalc:regionKanto 4.5478 4.8184 0.9438 0.3455
+## basetotalc:regionSinnoh 4.4896 4.8185 0.9318 0.3517
+## basetotalc:regionUnova 4.5527 4.8184 0.9448 0.3450</code></pre>
+<p><em>The mean BMI for the Alola region with average base stat total was 1380.666. For every 1-unit increase in base stat total, predicted BMI goes down 4.561 for the pokemon in the Alola region. Pokemon in the Hoenn, Johto, Kalos, Kanto, Sinnoh, and Unova regions with average base stat total have a predicted BMI that is 1330.807, 1347.183, 1345.834, 1348.019, 1333.488, and 1338.065 lower than pokemon in the Alola region with average BMI, respectively. Slope of base stat total on BMI for the Hoenn, Johto, Kalos, Kanto, Sinnoh, and Unova regions was 4.541, 4.549, 4.519, 4.548, 4.490, and 4.553 greater than for the Alola region. This model explains 0% of the variation in the outcome with an adjusted R-squared of -0.003. For the assumption of linearity, the scatterplot between the centered base total stat and BMI reveals that there is no linearity of the data. For the assumption of normality, the Shapiro-Wilk test resulted in a p-value &lt; 0.001 which means that we reject the null hypothesis that the data is normal. For the assumption of homoskedasticity, the Breush-Pagan test resulted in a p-value of 0.6 which means that we fail to reject the null hypothesis that the data is homoskedasctic. The combination of these failed assumptions with some outliers in the data set would probably explain why this model was so poor. Recomputing the regression results with robust standard errors resulted in the change from all the coefficients for all the regions being significant to all of them being not significant. Additionally, after using robust standard errors, the p-values for all variables and the t-statistics for the regions saw a general increase while the t-statistic for the interactions saw a slight, general decrease.</em></p>
+<p><strong>4. (5 pts)</strong> Rerun same regression model (with the interaction), but this time compute bootstrapped standard errors (either by resampling observations or residuals). Discuss any changes you observe in SEs and p-values using these SEs compared to the original SEs and the robust SEs)</p>
+<pre class="r"><code>pkmnfitted&lt;-regpkmn$fitted.values
+pkmnresid_resamp&lt;-replicate(500,{
+  new_pkmnresids&lt;-sample(pkmnresids,replace=TRUE)
+  pkmn1$new_y&lt;-pkmnfitted+new_pkmnresids
+  pkmnfit&lt;-lm(new_y~basetotalc*region,data=pkmn1)
+  coef(pkmnfit)
+})
+pkmnresid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>## (Intercept) basetotalc regionHoenn regionJohto
+regionKalos regionKanto regionSinnoh regionUnova
+## 1 422.5953 2.766841 517.3951 555.3731 585.7705 505.164
+568.2937 528.9463
+## basetotalc:regionHoenn basetotalc:regionJohto
+basetotalc:regionKalos basetotalc:regionKanto
+## 1 3.561617 3.764089 4.663745 3.839006
+## basetotalc:regionSinnoh basetotalc:regionUnova
+## 1 3.878592 3.913126</code></pre>
+<pre class="r"><code>pkmnresid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%gather%&gt;%group_by(key)%&gt;%summarize(lower=quantile(value,.025),upper=quantile(value,.975))</code></pre>
+<pre><code>## # A tibble: 14 x 3
+##    key                        lower    upper
+##    &lt;chr&gt;                      &lt;dbl&gt;    &lt;dbl&gt;
+##  1 (Intercept)              1168.   2687.   
+##  2 basetotalc                -10.3    -0.955
+##  3 basetotalc:regionHoenn     -1.87   14.3  
+##  4 basetotalc:regionJohto     -3.20   16.5  
+##  5 basetotalc:regionKalos     -6.81   17.6  
+##  6 basetotalc:regionKanto     -3.36   14.7  
+##  7 basetotalc:regionSinnoh    -5.28   15.3  
+##  8 basetotalc:regionUnova     -3.21   15.6  
+##  9 regionHoenn             -2723.   -522.   
+## 10 regionJohto             -2692.   -231.   
+## 11 regionKalos             -2709.     76.3  
+## 12 regionKanto             -2689.   -532.   
+## 13 regionSinnoh            -2679.   -210.   
+## 14 regionUnova             -2745.   -629.</code></pre>
+<p><em>After rerunning the same regression model with bootstrapped standard errors by resampling residuals, the SEs for the interactions saw a slight, general decrease, the SEs for the regions saw a massive increase, and the SE for the centered base stat total saw a slight increase. Conducting 95% CI for each variable reaffirms the results found using robust SEs that all the coefficients for each variable are not significant since each CI contains zero.</em></p>
+<p><strong>5. (30 pts)</strong> Fit a logistic regression model predicting a binary variable (if you don’t have one, make/get one) from at least two explanatory variables (interaction not necessary).</p>
+<pre><code>- Interpret coefficient estimates in context (10)
+- Report a confusion matrix for your logistic regression (5)
+- Compute and discuss the Accuracy, Sensitivity (TPR), Specificity (TNR), Precision (PPV), and AUC of your model (5)
+- Using ggplot, make a density plot of the log-odds (logit) colored/grouped by your binary outcome variable (5)
+- Generate an ROC curve (plot) and calculate AUC (either manually or with a package); interpret (5)</code></pre>
+<pre class="r"><code>pkmn3&lt;-pkmn1%&gt;%select(Healthy,basetotalc,region)
+pkmnfit2&lt;-glm(Healthy~basetotalc+region,data=pkmn3,family=binomial)
+exp(coef(pkmnfit2))</code></pre>
+<pre><code>## (Intercept) basetotalc regionHoenn regionJohto
+regionKalos regionKanto regionSinnoh
+## 0.1441412 0.9994794 1.4161704 1.4079448 1.8323685
+1.6370218 1.0552755
+## regionUnova
+## 0.9032712</code></pre>
+<pre class="r"><code>pkmnprob1&lt;-predict(pkmnfit2,type=&quot;response&quot;)
+table(predict=as.numeric(pkmnprob1&gt;.5),truth=pkmn1$Healthy)%&gt;%addmargins</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0   675 126 801
+##     Sum 675 126 801</code></pre>
+<pre class="r"><code>class_diag(pkmnprob1,pkmn1$Healthy)</code></pre>
+<pre><code>##         acc sens spec ppv       auc
+## 1 0.8426966    0    1 NaN 0.5711523</code></pre>
+<pre class="r"><code>pkmn1$logit&lt;-predict(pkmnfit2)
+pkmn1$Healthy&lt;-factor(pkmn1$Healthy,levels=c(0,1))
+ggplot(pkmn1,aes(logit,fill=Healthy))+geom_density(alpha=.3)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(plotROC)
+pkmn3$Healthy&lt;-as.numeric(as.character(pkmn3$Healthy))
+pkmn3$prob&lt;-predict(pkmnfit2,type=&quot;response&quot;)
+pkmnROC&lt;-ggplot(pkmn3)+geom_roc(aes(d=Healthy,m=prob),n.cuts=0)
+pkmnROC</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(pkmnROC)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.5711523</code></pre>
+<p><em>The odds of a pokemon being healthy in Hoenn, Johto, Kalos, Kanto, Sinnoh, and Unova are 0.999, 1.416, 1.408, 1.832, 1.638, 1.055, and 0.903 times what they are in Alola. As reported above, the confusion matrix does not have any instances where it would predict that a pokemon has a healthy BMI. Because of this, the resulting sensitivity would be 0/126=0 and the precision would be 0/na=na since there were no positive predictions. As for specificity, since there were no positive predictions, the only predictions made were negative which meant a sensitivity of 675/675=1. Accuracy only predicted the negatives correctly and missed all the positives so it has a value of (675+0)/801=0.843. As seen from the confusion matrix, the model was so poor that it was unable to make any positive predictions. With an AUC value of 0.571, this prediction model would be classified as bad.</em></p>
+<p><strong>6. (25 pts)</strong> Perform a logistic regression predicting the same binary response variable from <em>ALL</em> of the rest of your variables (the more, the better!)</p>
+<pre><code>- Fit model, compute in-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, AUC), and interpret (5)
+- Perform 10-fold (or repeated random sub-sampling) CV with the same model and report average out-of-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, and AUC); interpret AUC and compare with the in-sample metrics (10)
+- Perform LASSO on the same model/variables. Choose lambda to give the simplest model whose accuracy is near that of the best (i.e., `lambda.1se`). Discuss which variables are retained. (5)
+- Perform 10-fold CV using only the variables lasso selected: compare model&#39;s out-of-sample AUC to that of your logistic regressions above (5)</code></pre>
+<pre class="r"><code>pkmn2&lt;-pkmn1%&gt;%select(-name,-generation,-logit)
+pkmnfit3&lt;-glm(Healthy~.,data=pkmn2,family=&quot;binomial&quot;)
+pkmnprob&lt;-predict(pkmnfit3,type=&quot;response&quot;)
+class_diag(pkmnprob,pkmn2$Healthy)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.8327091 0.1031746 0.9688889 0.3823529 0.8206937</code></pre>
+<pre class="r"><code>k=10
+pkmndata&lt;-pkmn2[sample(nrow(pkmn2)),]
+pkmnfolds&lt;-cut(seq(1:nrow(pkmn2)),breaks=k,labels=F)
+diags&lt;-NULL
+for(i in 1:k){
+  pkmntrain&lt;-pkmndata[pkmnfolds!=i,]
+  pkmntest&lt;-pkmndata[pkmnfolds==i,]
+  
+  pkmntruth&lt;-pkmntest$Healthy
+  
+  pkmnfit4&lt;-glm(Healthy~.,data=pkmntrain,family=&quot;binomial&quot;)
+  pkmnprobs&lt;-predict(pkmnfit4,newdata=pkmntest,type=&quot;response&quot;)
+  
+  diags&lt;-rbind(diags,class_diag(pkmnprobs,pkmntruth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##        acc       sens      spec       ppv       auc
+## 1 0.810216 0.07915809 0.9476939 0.2638889 0.6958943</code></pre>
+<pre class="r"><code>library(glmnet)
+pkmnx&lt;-model.matrix(Healthy~.,data=pkmn2)[,-13]
+pkmny&lt;-as.matrix(pkmn2$Healthy)
+pkmncv&lt;-cv.glmnet(pkmnx,pkmny,family=&quot;binomial&quot;)
+pkmnlasso&lt;-glmnet(pkmnx,pkmny,family=&quot;binomial&quot;,lambda=pkmncv$lambda.1se)
+coef(pkmnlasso)</code></pre>
+<pre><code>## 53 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                          s0
+## (Intercept)   -1.678431e+00
+## (Intercept)    .           
+## type1dark      .           
+## type1dragon    .           
+## type1electric  .           
+## type1fairy     1.412721e-15
+## type1fighting  .           
+## type1fire      .           
+## type1flying    .           
+## type1ghost     .           
+## type1grass     .           
+## type1ground    .           
+## type1ice       .           
+## type1poison    .           
+## type1psychic   .           
+## type1rock      .           
+## type1steel     .           
+## type1water     .           
+## type2bug       .           
+## type2dark      .           
+## type2dragon    .           
+## type2electric  .           
+## type2fairy     .           
+## type2fighting  .           
+## type2fire      .           
+## type2flying    .           
+## type2ghost     .           
+## type2grass     .           
+## type2ground    .           
+## type2ice       .           
+## type2normal    .           
+## type2poison    .           
+## type2psychic   .           
+## type2rock      .           
+## type2steel     .           
+## type2water     .           
+## hp             .           
+## attack         .           
+## defense        .           
+## sp_attack      .           
+## sp_defense     .           
+## speed          .           
+## base_total     .           
+## weight_kg      .           
+## height_m       .           
+## BMI            .           
+## regionHoenn    .           
+## regionJohto    .           
+## regionKalos    .           
+## regionKanto    .           
+## regionSinnoh   .           
+## regionUnova    .           
+## basetotalc     .</code></pre>
+<pre class="r"><code>pkmn2$Fairy&lt;-pkmn2$type1==&quot;fairy&quot;
+pkmndata2&lt;-pkmn2[sample(nrow(pkmn2)),]
+pkmnfolds2&lt;-cut(seq(1:nrow(pkmn2)),breaks=k,labels=F)
+diags2&lt;-NULL
+for(i in 1:k){
+  pkmntrain2&lt;-pkmndata2[pkmnfolds2!=i,]
+  pkmntest2&lt;-pkmndata2[pkmnfolds2==i,]
+  
+  pkmntruth2&lt;-pkmntest2$Healthy
+  
+  pkmnfit6&lt;-glm(Healthy~Fairy,data=pkmntrain2,family=&quot;binomial&quot;)
+  pkmnprobs2&lt;-predict(pkmnfit6,newdata=pkmntest2,type=&quot;response&quot;)
+  
+  diags2&lt;-rbind(diags2,class_diag(pkmnprobs2,pkmntruth2))
+}
+
+summarize_all(diags2,mean)</code></pre>
+<pre><code>##         acc       sens      spec ppv       auc
+## 1 0.8351389 0.01428571 0.9891089 NaN 0.5345861</code></pre>
+<p><em>Computation of the in-sample diagnostics reveal that accuracy, specificity, and AUC are relatively good; however, both sensitivity and precision are not looking too good. These low values suggest that this prediction model is not very good at predicting if a healthy pokemon is healthy. With an AUC value of 0.821, this prediction model is classified as good. After 10-fold CV, the accuracy, sensitivity, specificity, precision, and AUC were 0.816, 0.074, 0.954, 0.27, and 0.714 respectively. Relative to the in-sample metrics, all classification diagnostics except AUC increased slightly. With an AUC value of 0.688, the prediction model got worse and is now classified as poor. LASSO was conducted and revealed that the type1 fairy variable should be retained (although just barely). With an AUC value of 0.526, this prediction model is the worst compared to the other two logistic regressions (AUC=0.821 and 0.688) and is now classified as bad.</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

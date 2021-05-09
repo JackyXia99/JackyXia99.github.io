@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>A Look at Pokemon Health Across the World</title>
+    <link>/</link>
+    <description>Recent content on A Look at Pokemon Health Across the World</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sun, 09 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Welcome!</title>
+      <link>/post/2021/05/09/welcome/</link>
+      <pubDate>Sun, 09 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2021/05/09/welcome/</guid>
+      <description>Link to project 1
+Link to google</description>
+    </item>
+    
+    <item>
+      <title>Hello R Markdown</title>
+      <link>/post/2015/07/23/hello-r-markdown/</link>
+      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
+      
+      <guid>/post/2015/07/23/hello-r-markdown/</guid>
+      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
+You can embed an R code chunk like this:
+summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+    </item>
+    
+    <item>
+      <title>Project1</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>1. Tidying: Rearranging Wide/Long (10 pts)  Tidy the datasets (using the tidyr functions pivot_longer/gather and/or pivot_wider/spread) If you data sets are already tidy, be sure to use those functions somewhere else in your project (e.g., for rearranging summary statistics) Document the process (describe in words what was done)  library(&amp;quot;readxl&amp;quot;) library(dplyr) ou &amp;lt;- read_excel(&amp;quot;gen1ou.xlsx&amp;quot;) ou &amp;lt;- ou %&amp;gt;% rename(Usage = `Usage %`, RawPer = `%...5`, RealPer = `%...7`) head(ou) ## # A tibble: 6 x 7 ## Rank Pokemon Usage Raw RawPer Real RealPer ## &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; ## 1 1 Tauros 0.</description>
+    </item>
+    
+    <item>
+      <title>Project2</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Guidelines and Rubric 0. (5 pts) Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?
+pkmn&amp;lt;-read.csv(&amp;quot;pokemon.csv&amp;quot;,header=TRUE) tidypkmn&amp;lt;-pkmn%&amp;gt;%select(name,type1,type2,hp,attack,defense,sp_attack,sp_defense,speed,base_total,generation,weight_kg,height_m,)%&amp;gt;%mutate(BMI=weight_kg/(height_m)^2)%&amp;gt;%mutate(Healthy=ifelse(BMI&amp;lt;=24.9&amp;amp;BMI&amp;gt;=18.5,1,0))%&amp;gt;%mutate(region=recode(generation,&amp;quot;1&amp;quot;=&amp;quot;Kanto&amp;quot;,&amp;quot;2&amp;quot;=&amp;quot;Johto&amp;quot;,&amp;quot;3&amp;quot;=&amp;quot;Hoenn&amp;quot;,&amp;quot;4&amp;quot;=&amp;quot;Sinnoh&amp;quot;,&amp;quot;5&amp;quot;=&amp;quot;Unova&amp;quot;,&amp;quot;6&amp;quot;=&amp;quot;Kalos&amp;quot;,&amp;quot;7&amp;quot;=&amp;quot;Alola&amp;quot;)) For project 2, I have chosen to continue with the theme of my project 1 and go with pokemon. With my dataset, I will be focusing on the BMIs of pokemon from generations 1-7 and how they might relate to the regions they can be found in.</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/</guid>
+      <description> Check out some of my coding projects below:
+ Wrangling &amp;amp; Exploratory Data Analysis
+ Modeling, Inference, Prediction
+  -- </description>
+    </item>
+    
+    <item>
+      <title>Resume</title>
+      <link>/resume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/</guid>
+      <description>    </description>
+    </item>
+    
+  </channel>
+</rss>
