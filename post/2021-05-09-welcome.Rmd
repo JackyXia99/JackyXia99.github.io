@@ -1,5 +1,5 @@
 ---
-title: Welcome!
+title: 'Python Example'
 author: ''
 date: '2021-05-09'
 slug: welcome
@@ -7,6 +7,8 @@ categories: []
 tags: []
 description: ''
 ---
-[Link to project 1](/project/project1/)
 
-[Link to google](https://www.google.com)
+```{python}
+3+3
+```
+

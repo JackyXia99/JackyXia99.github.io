@@ -1,0 +1,11 @@
+---
+title: "Resume"
+output: html_document
+hidedate: true
+hiderelated: true
+hidediscus: true
+---
+
+My name is Jacky Xia. Few years after being born in New York City, I moved to a small town in west Texas called San Angelo where I would spend most of my adolescence. Shortly after I graduated high school, I moved to McKinney, Texas (a suburb north of Dallas), but I didn't spend long there since I soon went to the University of Texas at Austin. 
+
+At UT

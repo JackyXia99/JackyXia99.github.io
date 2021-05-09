@@ -1,0 +1,26 @@
+---
+title: Reticulate
+author: ''
+date: '2021-05-09'
+slug: reticulate
+categories: []
+tags: []
+description: ''
+---
+
+```{r}
+library(reticulate)
+hi<-"Hello"
+```
+
+
+```{python}
+hi="world"
+print(r.hi,hi)
+```
+
+```{r}
+cat(c(hi,py$hi))
+```
+
+
