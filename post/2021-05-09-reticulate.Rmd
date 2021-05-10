@@ -9,18 +9,27 @@ description: ''
 ---
 
 ```{r}
+#R chunk
 library(reticulate)
 hi<-"Hello"
 ```
 
 
 ```{python}
+#Python chunk
 hi="world"
 print(r.hi,hi)
 ```
 
-```{r}
-cat(c(hi,py$hi))
+```{python}
+#Python chunk
+x=list(range(100))
+x
+y=2
 ```
 
+```{r}
+#R chunk
+py$x*py$y
+```
 

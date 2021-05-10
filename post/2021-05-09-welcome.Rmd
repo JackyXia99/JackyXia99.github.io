@@ -9,6 +9,14 @@ description: ''
 ---
 
 ```{python}
-3+3
+import pandas as pd
+import seaborn as sns
+iris=sns.load_dataset('iris')
+iris.to_csv("iris.csv")
+iris=pd.read_csv("iris.csv",index_col=0)
+iris['sepalarea']=iris['sepal_length']*iris['sepal_width']
+iris['petalarea']=iris['petal_length']*iris['petal_width']
+iris[(iris["sepalarea"]>25) & (iris["petalarea"]>15)] 
+#Assuming sepals/petals were rectangles, a species with both large sepal and petal area was virginica.
 ```
 
